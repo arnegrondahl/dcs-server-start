@@ -37,9 +37,9 @@ try {
         # [1] = "C:\\Users\\Administrator\\Google Drive\\Missions - Viktor Röd\\This is a mission file!.miz",
         # So we're usign the replace operator. The replace operator's first input is regex, so \ needs escaping.. 
         # Second input isn't. That's why the following can look weird: 
-        
         $InjectLine = $InjectLine -replace "\\", "\\"
-    
+
+        # Update the config file    
         $ConfigFile = Get-Content -Path $ConfigFileName
         $ConfigFile | ForEach-Object {
             if ($_ -match "\[1].*\.miz") { $InjectLine }
