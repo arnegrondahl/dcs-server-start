@@ -1,12 +1,16 @@
 function Write-Log {
-	param (
+
+    [CmdletBinding()]
+    param (
         [Parameter(Mandatory=$True)]
         [array]$LogLine,
         [Parameter(Mandatory=$True)]
         [string]$Path
-	)
+    )
+
     $DateTime = Get-Date -UFormat "%Y-%m-%d %T"
 	"[$DateTime] $LogLine" | Out-File $Path -Append
+
 }
 
 $ErrorActionPreference = "Stop"
@@ -39,7 +43,7 @@ try {
         # Second input isn't. That's why the following can look weird: 
         $InjectLine = $InjectLine -replace "\\", "\\"
 
-        # Update the config file    
+        # Update the config fi    
         $ConfigFile = Get-Content -Path $ConfigFileName
         $ConfigFile | ForEach-Object {
             if ($_ -match "\[1].*\.miz") { $InjectLine }
@@ -48,14 +52,15 @@ try {
     
         Write-Log -LogLine "Starting mission in $ConfigFileName has been set to $MissionFileName" -Path $LogFile
     }
+
     else {
         Write-Log -LogLine "Error updating starting mission: The first file in $GoogleDriveDir does not end with .miz. Starting mission in $ConfigFile will not be updated." -Path $LogFile
     }
 }
+
 catch {
     Write-Log -LogLine ("Error updating starting mission: {0}" -f $_) -Path $LogFile
 }
 
 Write-Log -LogLine "All done" -Path $LogFile
 Write-Log -LogLine "******************************************" -Path $LogFile
-
