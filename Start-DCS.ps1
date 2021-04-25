@@ -34,7 +34,6 @@ function Write-Log {
 
     $DateTime = Get-Date -UFormat "%Y-%m-%d %T"
 	"[$DateTime] $LogLine" | Out-File $Path -Append
-
 }
 
 function Update-DCSServerConfigStartingMission {
@@ -51,7 +50,6 @@ function Update-DCSServerConfigStartingMission {
     )
 
     try {
-
         switch ($SortBy) {
             Name {  
                 $MissionFileName = (Get-ChildItem -Path $SharedDriveDir | 
@@ -79,7 +77,7 @@ function Update-DCSServerConfigStartingMission {
             Copy-Item -Path $ConfigFileName -Destination "$ConfigFileName.bak"
     
             # Windows fs path in the config file wants double backslashes, like so:
-            # [1] = "C:\\Users\\Administrator\\Google Drive\\Missions - Viktor Röd\\This is a mission file!.miz",
+            # [1] = "C:\\Users\\Administrator\\Google Drive\\Missions\\This is a mission file!.miz",
             # So we're usign the replace operator. The replace operator's first input is regex, so \ needs escaping.. 
             # Second input isn't. That's why the following can look weird: 
             $InjectLine = $InjectLine -replace "\\", "\\"
@@ -93,7 +91,6 @@ function Update-DCSServerConfigStartingMission {
         
             Write-Log -LogLine "Starting mission in $ConfigFileName has been set to $MissionFileName" -Path $LogFile
         }
-    
         else {
             Write-Log -LogLine "Error updating starting mission: The first file in $SharedDriveDir does not end with .miz. Starting mission in $ConfigFile will not be updated." -Path $LogFile
         }
@@ -109,10 +106,8 @@ function Start-AU3DCS {
     param (
         [Parameter(Mandatory=$true)]
         [string]$ProgramPath,
-        
         [Parameter(Mandatory=$true)]
         [string]$DCSUsername,
-       
         [Parameter(Mandatory=$true)]
         [string]$DCSPasswd
     )
