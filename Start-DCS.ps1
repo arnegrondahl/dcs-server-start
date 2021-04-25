@@ -115,7 +115,7 @@ function Start-AU3DCS {
     try {
         Import-Module ${env:ProgramFiles(x86)}\AutoIt3\AutoItX\AutoItX.psd1
 
-        Write-Log -LogLine "Ivoking $ProgramPath" -Path $LogFile
+        Write-Log -LogLine "Invoking $ProgramPath" -Path $LogFile
         Invoke-AU3Run -Program $ProgramPath
         
         $WindowTitle = 'DCS Login'
