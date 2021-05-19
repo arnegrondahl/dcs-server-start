@@ -19,21 +19,50 @@
     - AutoIt3 - https://www.autoitscript.com/site/autoit/downloads/
 
     All variables and settings that need changing for each setup starts after the functions, 
-    at the end of the script.
+    at the end of the script. Except Send-DiscordMessage, see below.
 #>
+
+function Send-DiscordMessage {
+
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$True)]
+        [string]$Message
+    )
+
+    $WebHookUrl = 'https://discord.com/api/webhooks/stuffandstuff'
+
+    $Payload = [PSCustomObject]@{
+        content = $Message
+        username = 'Viktor Röd Server'
+    }
+
+    $WebhookSplat = @{
+        Uri = $WebHookUrl
+        Method = 'Post'
+        ContentType   = 'Application/Json'
+        Body = ([System.Text.Encoding]::UTF8.GetBytes(($payload | ConvertTo-Json))) # Need UTF8 or webhook will return 400 on special chars
+    }
+    Invoke-RestMethod @WebhookSplat
+
+    # Wait a second here so we don't get rate limited
+    Start-Sleep -Seconds 1
+}
 
 function Write-Log {
 
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$True)]
-        [array]$LogLine,
+        [string]$LogLine,
         [Parameter(Mandatory=$True)]
         [string]$Path
     )
 
     $DateTime = Get-Date -UFormat "%Y-%m-%d %T"
 	"[$DateTime] $LogLine" | Out-File $Path -Append
+    
+    Send-DiscordMessage -Message $LogLine
 }
 
 function Update-DCSServerConfigStartingMission {
@@ -55,13 +84,13 @@ function Update-DCSServerConfigStartingMission {
                 $MissionFileName = (Get-ChildItem -Path $SharedDriveDir | 
                                     Sort-Object -Property Name).Name | 
                                     Select-Object -First 1
-                Write-Log -LogLine "Sorting mission files by filename and picking the first one." -Path $LogFile
+                Write-Log -LogLine "Sorting mission files by filename and picking the first one" -Path $LogFile
             }
             Time {
                 $MissionFileName = (Get-ChildItem -Path $SharedDriveDir | 
                                     Sort-Object -Property LastWriteTime -Descending).Name | 
                                     Select-Object -First 1
-                Write-Log -LogLine "Sorting mission files by last modified time and picking the most recent one." -Path $LogFile
+                Write-Log -LogLine "Sorting mission files by last modified time and picking the most recent one" -Path $LogFile
             }
         }
     
@@ -73,11 +102,11 @@ function Update-DCSServerConfigStartingMission {
             Write-Log -LogLine "Found $MissionFullPath" -Path $LogFile
             
             # Only interested in keeping 1 most-recent backup. Add last x days if needed and rotate
-            Write-Log -LogLine "Backing up config." -Path $LogFile
+            Write-Log -LogLine "Backing up config" -Path $LogFile
             Copy-Item -Path $ConfigFileName -Destination "$ConfigFileName.bak"
     
             # Windows fs path in the config file wants double backslashes, like so:
-            # [1] = "C:\\Users\\Administrator\\Google Drive\\Missions\\This is a mission file!.miz",
+            # [1] = "C:\\Users\\Administrator\\Google Drive\\Missions - Viktor Röd\\This is a mission file!.miz",
             # So we're usign the replace operator. The replace operator's first input is regex, so \ needs escaping.. 
             # Second input isn't. That's why the following can look weird: 
             $InjectLine = $InjectLine -replace "\\", "\\"
@@ -92,7 +121,7 @@ function Update-DCSServerConfigStartingMission {
             Write-Log -LogLine "Starting mission in $ConfigFileName has been set to $MissionFileName" -Path $LogFile
         }
         else {
-            Write-Log -LogLine "Error updating starting mission: The first file in $SharedDriveDir does not end with .miz. Starting mission in $ConfigFile will not be updated." -Path $LogFile
+            Write-Log -LogLine "Error updating starting mission: The first file in $SharedDriveDir does not end with .miz. Starting mission in $ConfigFile will not be updated" -Path $LogFile
         }
     }
     catch {
@@ -131,7 +160,7 @@ function Start-AU3DCS {
         # Login button
         $ControlHandle3 = Get-AU3ControlHandle -WinHandle $WindowHandle -Control 'Button3'
     
-        Write-Log -LogLine "Authenticating." -Path $LogFile
+        Write-Log -LogLine "Authenticating to DCS service" -Path $LogFile
         Set-AU3ControlText -ControlHandle $ControlHandle1 -NewText $DCSUsername -WinHandle $WindowHandle
         Set-AU3ControlText -ControlHandle $ControlHandle2 -NewText $DCSPasswd -WinHandle $WindowHandle
         Send-AU3ControlKey -ControlHandle $controlHandle3 -Key "{ENTER}" -WinHandle $WindowHandle
@@ -146,12 +175,12 @@ $ErrorActionPreference = "Stop"
 $LogFile = 'C:\Users\Administrator\Desktop\DCSstartup.log'
 
 Write-Log -LogLine "******************************************" -Path $LogFile
-Write-Log -LogLine "Startup script triggered, starting to log." -Path $LogFile
+Write-Log -LogLine "DCS startup script triggered, starting to log. Verbose for now during development" -Path $LogFile
 Write-Log -LogLine "PowerShell version is $($PSVersionTable.PSVersion)" -Path $LogFile
 
 $ConfigUpdateSplat = @{
     SortBy = "Name"
-    SharedDriveDir = 'C:\Users\Administrator\Google Drive\Missions\'
+    SharedDriveDir = 'C:\Users\Administrator\Google Drive\Missions - Viktor Röd\'
     ConfigFileName = 'C:\Users\Administrator\Saved Games\DCS.server\Config\serverSettings.lua'
 }
 Update-DCSServerConfigStartingMission @ConfigUpdateSplat
