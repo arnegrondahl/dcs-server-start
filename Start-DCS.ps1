@@ -223,7 +223,7 @@ Update-DCSServerConfigStartingMission @ConfigUpdateMissionSplat
 
 $ConfigUpdatePasswordSplat = @{
     ConfigFileName = 'C:\Users\Administrator\Saved Games\DCS.server\Config\serverSettings.lua'
-    Password       = 'Generate a password or use a static one'
+    Password       = 'Generate a password here'
 }
 Update-DCSServerConfigPassword @ConfigUpdatePasswordSplat
 
