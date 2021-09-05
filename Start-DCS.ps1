@@ -5,21 +5,25 @@
     
     This script was written with the goal of having DCS Server automatically start when
     the machine itself has booted, or rebooted. I use the Windows Task Scheduler to run it.
-    It also logs to file for easier troubleshooting in case something breaks at some point.
+    
+    Password/secret handling is what it is here. You probably want to ensure that no one can
+    read this file, unless you break them out to something proper.
+
+    Uncomment any/all Write-Log lines to help troubleshooting if stuff breaks. Or add your own.
 
     It does the following:
     1) Checks "shared" directory (google drive for example) for mission files
     2) Sorts the list of mission files, either on Name or LastModified
     3) Takes the mission which ended up on the top of the list and inserts it into DCS serverSettings.lua
-    4) Starts the DCS updater and authenticates, launches the game
+    4) Sets a server password as we want it changed monthly
+    5) Starts the DCS updater and authenticates, launches the game
 
     It requires:
     - DCS Dedicated Server - https://www.digitalcombatsimulator.com/en/downloads/world/server/
     - PowerShell >= 7.1 - https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.1
     - AutoIt3 - https://www.autoitscript.com/site/autoit/downloads/
 
-    All variables and settings that need changing for each setup starts after the functions, 
-    at the end of the script. Except Send-DiscordMessage, see below.
+    https://github.com/agrondahl/dcs-server-start
 #>
 
 function Send-DiscordMessage {
@@ -30,25 +34,28 @@ function Send-DiscordMessage {
         [string]$Message
     )
 
-    $WebHookUrl = 'https://discord.com/api/webhooks/stuffandstuff'
+    # Add your Discord webhook URL
+    $WebHookUrl = 'https://discord.com/api/webhooks/hookelihook'
 
     $Payload = [PSCustomObject]@{
-        content = $Message
-        username = 'Viktor Röd Server'
+        content  = $Message
+        username = 'Viktor Röd Server' # Change this whatever should show up in Discord as poster name
     }
 
     $WebhookSplat = @{
-        Uri = $WebHookUrl
-        Method = 'Post'
-        ContentType   = 'Application/Json'
-        Body = ([System.Text.Encoding]::UTF8.GetBytes(($payload | ConvertTo-Json))) # Need UTF8 or webhook will return 400 on special chars
+        Uri         = $WebHookUrl
+        Method      = 'Post'
+        ContentType = 'Application/Json'
+        Body        = ([System.Text.Encoding]::UTF8.GetBytes(($payload | ConvertTo-Json))) # Need UTF8 or webhook will return 400 on special chars
     }
     Invoke-RestMethod @WebhookSplat
 
-    # Wait a second here so we don't get rate limited
+    # Prevent rate limiting
     Start-Sleep -Seconds 1
 }
 
+
+# This is stupid. Refactor Write-Log and Send-DiscordMessage when/if it would seem like a fun thing to do...
 function Write-Log {
 
     [CmdletBinding()]
@@ -84,13 +91,13 @@ function Update-DCSServerConfigStartingMission {
                 $MissionFileName = (Get-ChildItem -Path $SharedDriveDir | 
                                     Sort-Object -Property Name).Name | 
                                     Select-Object -First 1
-                Write-Log -LogLine "Sorting mission files by filename and picking the first one" -Path $LogFile
+                #Write-Log -LogLine "Sorting mission files by filename" -Path $LogFile
             }
             Time {
                 $MissionFileName = (Get-ChildItem -Path $SharedDriveDir | 
                                     Sort-Object -Property LastWriteTime -Descending).Name | 
                                     Select-Object -First 1
-                Write-Log -LogLine "Sorting mission files by last modified time and picking the most recent one" -Path $LogFile
+                #Write-Log -LogLine "Sorting mission files by last modified time" -Path $LogFile
             }
         }
     
@@ -99,11 +106,11 @@ function Update-DCSServerConfigStartingMission {
             $MissionFullPath = -join($SharedDriveDir, $MissionFileName)
             $InjectLine = -join("        [1] = ", """$MissionFullPath"",")
     
-            Write-Log -LogLine "Found $MissionFullPath" -Path $LogFile
+            Write-Log -LogLine "Starting mission is $MissionFileName" -Path $LogFile
             
             # Only interested in keeping 1 most-recent backup. Add last x days if needed and rotate
-            Write-Log -LogLine "Backing up config" -Path $LogFile
-            Copy-Item -Path $ConfigFileName -Destination "$ConfigFileName.bak"
+            #Write-Log -LogLine "Backing up config" -Path $LogFile
+            Copy-Item -Path $ConfigFileName -Destination "$ConfigFileName.mission.bak"
     
             # Windows fs path in the config file wants double backslashes, like so:
             # [1] = "C:\\Users\\Administrator\\Google Drive\\Missions - Viktor Röd\\This is a mission file!.miz",
@@ -118,7 +125,7 @@ function Update-DCSServerConfigStartingMission {
                 else { $_ -replace "`r`n", "`n" }
             } | Set-Content -Path $ConfigFileName -Encoding utf8
         
-            Write-Log -LogLine "Starting mission in $ConfigFileName has been set to $MissionFileName" -Path $LogFile
+            #Write-Log -LogLine "Starting mission in $ConfigFileName has been set to $MissionFileName" -Path $LogFile
         }
         else {
             Write-Log -LogLine "Error updating starting mission: The first file in $SharedDriveDir does not end with .miz. Starting mission in $ConfigFile will not be updated" -Path $LogFile
@@ -126,6 +133,35 @@ function Update-DCSServerConfigStartingMission {
     }
     catch {
         Write-Log -LogLine ("Error updating starting mission: {0}" -f $_) -Path $LogFile
+    }
+}
+
+function Update-DCSServerConfigPassword {
+
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ConfigFileName,
+        [Parameter(Mandatory=$true)]
+        [string]$Password
+    )
+
+    try {
+        $InjectLine = -join("    [""password""] = ", """$Password"",")
+        
+        Copy-Item -Path $ConfigFileName -Destination "$ConfigFileName.passwd.bak"
+        
+        #Write-Log -LogLine "Setting password" -Path $LogFile
+
+        # Update config file
+        $ConfigFile = (Get-Content -Path $ConfigFileName -Encoding utf8)
+        $ConfigFile | ForEach-Object {
+            if ($_ -match "password") { $InjectLine -replace "`r`n", "`n" }
+            else { $_ -replace "`r`n", "`n" }
+        } | Set-Content -Path $ConfigFileName -Encoding utf8
+    }
+    catch {
+        Write-Log -LogLine ("Error updating password: {0}" -f $_) -Path $LogFile
     }
 }
 
@@ -144,7 +180,7 @@ function Start-AU3DCS {
     try {
         Import-Module ${env:ProgramFiles(x86)}\AutoIt3\AutoItX\AutoItX.psd1
 
-        Write-Log -LogLine "Invoking $ProgramPath" -Path $LogFile
+        #Write-Log -LogLine "Starting DCS World Dedicated Server" -Path $LogFile
         Invoke-AU3Run -Program $ProgramPath
         
         $WindowTitle = 'DCS Login'
@@ -160,7 +196,7 @@ function Start-AU3DCS {
         # Login button
         $ControlHandle3 = Get-AU3ControlHandle -WinHandle $WindowHandle -Control 'Button3'
     
-        Write-Log -LogLine "Authenticating to DCS service" -Path $LogFile
+        #Write-Log -LogLine "Authenticating to DCS service" -Path $LogFile
         Set-AU3ControlText -ControlHandle $ControlHandle1 -NewText $DCSUsername -WinHandle $WindowHandle
         Set-AU3ControlText -ControlHandle $ControlHandle2 -NewText $DCSPasswd -WinHandle $WindowHandle
         Send-AU3ControlKey -ControlHandle $controlHandle3 -Key "{ENTER}" -WinHandle $WindowHandle
@@ -174,23 +210,35 @@ $ErrorActionPreference = "Stop"
 
 $LogFile = 'C:\Users\Administrator\Desktop\DCSstartup.log'
 
-Write-Log -LogLine "******************************************" -Path $LogFile
-Write-Log -LogLine "DCS startup script triggered, starting to log. Verbose for now during development" -Path $LogFile
-Write-Log -LogLine "PowerShell version is $($PSVersionTable.PSVersion)" -Path $LogFile
+#Write-Log -LogLine "******************************************" -Path $LogFile
+#Write-Log -LogLine "DCS World Dedicated Server startup script triggered" -Path $LogFile
+#Write-Log -LogLine "PowerShell version is $($PSVersionTable.PSVersion)" -Path $LogFile
 
-$ConfigUpdateSplat = @{
-    SortBy = "Name"
+$ConfigUpdateMissionSplat = @{
+    SortBy         = "Name"
     SharedDriveDir = 'C:\Users\Administrator\Google Drive\Missions - Viktor Röd\'
     ConfigFileName = 'C:\Users\Administrator\Saved Games\DCS.server\Config\serverSettings.lua'
 }
-Update-DCSServerConfigStartingMission @ConfigUpdateSplat
+Update-DCSServerConfigStartingMission @ConfigUpdateMissionSplat
+
+$ConfigUpdatePasswordSplat = @{
+    ConfigFileName = 'C:\Users\Administrator\Saved Games\DCS.server\Config\serverSettings.lua'
+    Password       = 'Generate a password or use a static one'
+}
+Update-DCSServerConfigPassword @ConfigUpdatePasswordSplat
 
 $AU3Splat = @{
     ProgramPath = 'D:\DCS World Server\bin\DCS_updater.exe'
-    DCSUsername = 'user'
-    DCSPasswd   = 'pass'
+    DCSUsername = ''
+    DCSPasswd   = ''
 }
 Start-AU3DCS @AU3Splat
 
-Write-Log -LogLine "All done!" -Path $LogFile
-Write-Log -LogLine "******************************************" -Path $LogFile
+#Write-Log -LogLine "Starting Discord bot python script" -Path $LogFile
+#Start-Process -WorkingDirectory 'C:\Users\Administrator\Desktop\DCSServerBot-master' -FilePath 'python' -ArgumentList 'bot.py'
+
+#Write-Log -LogLine "Starting SRS Server" -Path $LogFile
+Start-Process -FilePath 'C:\Program Files\DCS-SimpleRadio-Standalone\SR-Server.exe' 
+
+#Write-Log -LogLine "Automagic startup completed" -Path $LogFile
+#Write-Log -LogLine "******************************************" -Path $LogFile
