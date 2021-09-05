@@ -1,0 +1,19 @@
+# systemd service script for kicking off Discord bot during boot, should exist
+# as /etc/systemd/system/discordbot.service for good measure. For reference:
+#
+# sudo chmod 664 discordbot.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable discordbot.service
+#
+# https://github.com/agrondahl/dcs-server-start
+
+[Unit]
+After=network.service
+
+[Service]
+WorkingDirectory=/home/ubuntu/
+User=ubuntu
+ExecStart=/bin/bash -c 'python3 /home/ubuntu/discordbot.py'
+
+[Install]
+WantedBy=multi-user.target
