@@ -1,6 +1,6 @@
 # Starts an EC2 instance and reports back to Discord. I use it for scheduling automagic
 # start/stops using AWS CloudWatch rules.
-# This needs packaging with dependencies before uploading to a Lamdba rule.. see 
+# This needs packaging with dependencies before uploading to a Lamdba function.. see 
 # https://docs.aws.amazon.com/lambda/latest/dg/python-package.html for ezpz steps.
 #
 # https://github.com/agrondahl/dcs-server-start
