@@ -20,7 +20,8 @@ It requires:
 # dcs_bot.py
 
 An ugly Discord bot implementation that via /slash-commands can start/stop/status AWS EC2 instances.
-I'm starting as a systemd service during boot/startup on a minimal Ubuntu install. 
+I'm starting it as a systemd service during boot/startup on a minimal Ubuntu install. See discordbot.service
+for ideas.
 
 It requires:
 - Python 3.8 - modules boto3, discord, discord-py-slash-command
