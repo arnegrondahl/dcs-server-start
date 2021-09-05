@@ -8,9 +8,9 @@ Written by, and for Viktor Röd - part of NOSIG. https://www.nosig.se/
 
 Assets:
 - 1 AWS EC2 Windows VM. t3.medium 2CPU/4GB RAM. 30GB OS, 200GB game, both SSD GP2. Runs DCS, SRS, LotATC
-- 1 AWS EC2 Linux VM. t3.micro (free) 2CPU/1GB RAM. 8GB magnetic. Runs discordbot.py for taking commands via Discord and start/stop the VM running DCS
-- 2 AWS Lambda functions. Start/stop EC2 VM
-- 2 AWS CloudWatch rules, triggering Lambda functions
+- 1 AWS EC2 Linux VM. t3.micro (free) 2CPU/1GB RAM. 8GB magnetic. Runs discordbot.py for taking commands via Discord to manually start/stop the VM running DCS
+- 2 AWS Lambda functions. Automatic start/stop EC2 VM
+- 2 AWS CloudWatch rules. Scheduled triggering of Lambda functions
 - AWS IAM Users/Roles/Policies for Discord bot & Lamdba functions
 - Contents of this repo
 
