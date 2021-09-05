@@ -17,7 +17,7 @@ It requires:
 - PowerShell >= 7.1 - https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.1
 - AutoIt3 - https://www.autoitscript.com/site/autoit/downloads/
 
-# dcs_bot.py
+# discordbot.py
 
 An ugly Discord bot implementation that via /slash-commands can start/stop/status AWS EC2 instances.
 I'm starting it as a systemd service during boot/startup on a minimal Ubuntu install. See discordbot.service
