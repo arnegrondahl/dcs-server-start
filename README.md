@@ -27,3 +27,7 @@ It requires:
 - ~/.aws/credentials - Authentication credentials for an AWS IAM service account
 - ~/.aws/config - see https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
 - ./config.yaml for Discord auth creds
+
+# discordbot.service
+
+systemd service script for start the Discord bot during boot, more info inside the file.
