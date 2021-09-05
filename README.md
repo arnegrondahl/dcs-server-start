@@ -6,6 +6,14 @@ The repo contents is for hosting in AWS but with very little effort could be mad
 
 Written by, and for Viktor Röd - part of NOSIG. https://www.nosig.se/
 
+Assets:
+- 1 AWS EC2 Windows VM. t3.medium 2CPU/4GB RAM. Runs DCS, SRS, LotATC
+- 1 AWS EC2 Linux VM. t3.micro (free) 2CPU/1GB RAM. Runs discordbot.py for taking commands via Discord and start/stop the VM running DCS.
+- 2 AWS Lambda functions. Start/stop EC2 VM.
+- 2 AWS CloudWatch rules, triggering Lambda functions.
+- AWS IAM Users/Roles/Policies for Discord bot & Lamdba functions
+- Contents of this repo
+
 # Start-DCS.ps1
 
 Set to run when the Windows box boots up, it makes sure DCS Server starts with no human interaction. Use the Task Scheduler for example.
