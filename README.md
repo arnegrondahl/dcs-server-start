@@ -22,5 +22,8 @@ It requires:
 An ugly Discord bot implementation that via /slash-commands can start/stop/status AWS EC2 instances.
 I'm starting as a systemd service during boot/startup on a minimal Ubuntu install. 
 
-It requires ~/.aws/credentials and ./config.yaml for Discord creds.
-
+It requires:
+- Python 3.8 - modules boto3, discord, discord-py-slash-command
+- ~/.aws/credentials - Authentication credentials for an AWS IAM service account
+- ~/.aws/config - see https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
+- ./config.yaml for Discord auth creds
