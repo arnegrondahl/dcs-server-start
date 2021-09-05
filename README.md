@@ -8,10 +8,7 @@ Written by, and for Viktor Röd - part of NOSIG. https://www.nosig.se/
 
 # Start-DCS.ps1
 
-This script was written with the goal of having DCS Server automatically start when
-the machine itself has booted, or rebooted. I use the Windows Task Scheduler to run it.
-
-Uncomment any/all Write-Log lines to help troubleshooting if stuff breaks. Or add your own.
+Set to run when the Windows box boots up, it makes sure DCS Server starts with no human interaction. Use the Task Scheduler for example.
 
 It does the following:
 1) Checks "shared" directory (google drive for example) for mission files
@@ -39,7 +36,7 @@ It requires:
 
 # discordbot.service
 
-systemd service script for start the Discord bot during boot, more info inside the file.
+systemd service script to start the Discord bot during boot, more info inside the file.
 
 # aws-lambda/
-For automagic start/stop of AWS EC2 instances using Lambda and CloudWatch. See files for further info.
+Automagic start/stop of AWS EC2 instances using Lambda and CloudWatch. See files for further info.
