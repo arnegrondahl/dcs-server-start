@@ -15,7 +15,7 @@ ec2 = boto3.client('ec2', region_name=region)
 def lambda_handler(event, context):
     ec2.start_instances(InstanceIds=instances)
 
-    url = "https://discord.com/api/webhooks/yourwebeliwebhookhere" # Your webhook here.
+    url = "https://discord.com/api/webhooks/yourwebeliwebhookhere" # Your webhook here
 
     data = {
         "content" : "Scheduled automation is starting server Viktor Röd",
