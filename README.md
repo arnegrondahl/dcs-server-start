@@ -1,3 +1,11 @@
+# Overview
+
+This is a collection of scripts and documentation to have a dedicated DCS Server running on an automated start/stop schedule, but also the possibility to via Discord start and stop it. Once setup, the idea is that everything should work with next to none maintenance. This has been the case for 5 months in Viktor Röd. 
+
+It was written for hosting in AWS but with very little effort could be made to run on any public cloud provider or at home.
+
+Written by and for Viktor Röd, part of NOSIG - https://www.nosig.se/.
+
 # Start-DCS.ps1
 
 This script was written with the goal of having DCS Server automatically start when
