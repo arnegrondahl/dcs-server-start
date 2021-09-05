@@ -32,3 +32,6 @@ It requires:
 # discordbot.service
 
 systemd service script for start the Discord bot during boot, more info inside the file.
+
+# aws-lambda/
+For automagic start/stop of AWS EC2 instances using Lambda and CloudWatch. See files for further info.
