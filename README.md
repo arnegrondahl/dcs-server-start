@@ -4,7 +4,7 @@ A collection of scripts and documentation to have a dedicated DCS Server running
 
 The repo contents is for hosting in AWS but with very little effort could be made to run on any public cloud provider or at home. I can help out if you have a compelling case :)
 
-Written by and for Viktor Röd, part of NOSIG - https://www.nosig.se/.
+Written by, and for Viktor Röd - part of NOSIG. https://www.nosig.se/
 
 # Start-DCS.ps1
 
