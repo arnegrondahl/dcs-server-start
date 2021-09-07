@@ -12,6 +12,8 @@ Assets:
 - 2 AWS Lambda functions. Automatic start/stop EC2 VM
 - 2 AWS CloudWatch rules. Scheduled triggering of Lambda functions
 - AWS IAM Users/Roles/Policies for Discord bot & Lamdba functions
+- Discord guild/server
+- Discord app/bot registration authed with guild/server
 - Contents of this repo
 
 # Start-DCS.ps1
