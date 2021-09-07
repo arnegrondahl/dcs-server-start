@@ -13,7 +13,7 @@ Assets:
 - 2 AWS CloudWatch rules. Scheduled triggering of Lambda functions
 - AWS IAM Users/Roles/Policies for Discord bot & Lamdba functions
 - Discord guild/server
-- Discord app/bot registration authed with guild/server
+- Discord app/bot registration authed with guild/server. The bot needs at least 'slash commands', 'bot' and 'application' privileges 
 - Contents of this repo
 
 # Start-DCS.ps1
