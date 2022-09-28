@@ -5,7 +5,7 @@
 # sudo systemctl daemon-reload
 # sudo systemctl enable discordbot.service
 #
-# https://github.com/agrondahl/dcs-server-start
+# https://github.com/arnegrondahl/dcs-server-start
 
 [Unit]
 After=network.service
