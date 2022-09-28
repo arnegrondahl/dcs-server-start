@@ -23,7 +23,7 @@
     - PowerShell >= 7.1 - https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.1
     - AutoIt3 - https://www.autoitscript.com/site/autoit/downloads/
 
-    https://github.com/agrondahl/dcs-server-start
+    https://github.com/arnegrondahl/dcs-server-start
 #>
 
 function Send-DiscordMessage {
